@@ -1,25 +1,23 @@
-// Pull in required dependencies
-var inquirer = require('inquirer');
-var mysql = require('mysql');
 
-// Define the MySQL connection parameters
+var inquirer = require('inquirer'),
+mysql = require('mysql');
+
 var connection = mysql.createConnection({
 	host: 'localhost',
 	port: 3306,
 
-	// Your username
+	// username
 	user: 'root',
 
-	// Your password
+	// password
 	password: '',
 	database: 'Bamazon'
 });
 
-// promptManagerAction will present menu options to the manager and trigger appropriate logic
+
 function promptManagerAction() {
 	// console.log('___ENTER promptManagerAction___');
 
-	// Prompt the manager to select an option
 	inquirer.prompt([
 		{
 			type: 'list',
@@ -45,7 +43,6 @@ function promptManagerAction() {
 	]).then(function(input) {
 		// console.log('User has selected: ' + JSON.stringify(input));
 
-		// Trigger the appropriate action based on the user input
 		if (input.option ==='sale') {
 			displayInventory();
 		} else if (input.option === 'lowInventory') {
@@ -55,21 +52,19 @@ function promptManagerAction() {
 		} else if (input.option === 'newProduct') {
 			createNewProduct();
 		} else {
-			// This case should be unreachable
 			console.log('ERROR: Unsupported operation!');
 			exit(1);
 		}
 	})
 }
 
-// displayInventory will retrieve the current inventory from the database and output it to the console
+
 function displayInventory() {
 	// console.log('___ENTER displayInventory___');
 
-	// Construct the db query string
+
 	queryStr = 'SELECT * FROM products';
 
-	// Make the db query
 	connection.query(queryStr, function(err, data) {
 		if (err) throw err;
 
@@ -90,19 +85,17 @@ function displayInventory() {
 
 	  	console.log("---------------------------------------------------------------------\n");
 
-		// End the database connection
 		connection.end();
 	})
 }
 
-// displayLowInventory will display a list of products with the available quantity below 100
+
 function displayLowInventory() {
 	// console.log('___ENTER displayLowInventory');
 
-	// Construct the db query string
 	queryStr = 'SELECT * FROM products WHERE stock_quantity < 100';
 
-	// Make the db query
+
 	connection.query(queryStr, function(err, data) {
 		if (err) throw err;
 
@@ -123,7 +116,6 @@ function displayLowInventory() {
 
 	  	console.log("---------------------------------------------------------------------\n");
 
-		// End the database connection
 		connection.end();
 	})
 }
@@ -200,18 +192,17 @@ function addInventory() {
 
 				console.log('Updating Inventory...');
 
-				// Construct the updating query string
+
 				var updateQueryStr = 'UPDATE products SET stock_quantity = ' + (productData.stock_quantity + addQuantity) + ' WHERE item_id = ' + item;
 				// console.log('updateQueryStr = ' + updateQueryStr);
 
-				// Update the inventory
 				connection.query(updateQueryStr, function(err, data) {
 					if (err) throw err;
 
 					console.log('Stock count for Item ID ' + item + ' has been updated to ' + (productData.stock_quantity + addQuantity) + '.');
 					console.log("\n---------------------------------------------------------------------\n");
 
-					// End the database connection
+
 					connection.end();
 				})
 			}
@@ -223,7 +214,6 @@ function addInventory() {
 function createNewProduct() {
 	// console.log('___ENTER createNewProduct___');
 
-	// Prompt the user to enter information about the new product
 	inquirer.prompt([
 		{
 			type: 'input',
@@ -265,19 +255,15 @@ function createNewProduct() {
 			console.log('New product has been added to the inventory under Item ID ' + results.insertId + '.');
 			console.log("\n---------------------------------------------------------------------\n");
 
-			// End the database connection
 			connection.end();
 		});
 	})
 }
 
-// runBamazon will execute the main application logic
 function runBamazon() {
 	// console.log('___ENTER runBamazon___');
 
-	// Prompt manager for input
 	promptManagerAction();
 }
 
-// Run the application logic
 runBamazon();
